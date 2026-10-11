@@ -84,7 +84,7 @@ function energyJ(M) { return Math.pow(10, 1.5 * M + 4.8); }
 function feltKm(M) { return Math.pow(10, 0.45 * M - 0.1); }
 
 
-const VERSION = '2.0.mv3bz80s';
+const VERSION = '2.0.mv3sepp1';
 const IGC_URL = 'https://sismosgeociencias.up.ac.pa/';
 const IGC_TZ = '-05:00'; // Panamá no usa horario de verano
 const UA = 'Mozilla/5.0 (compatible; SismoPanamaISTMO/2.0; +https://github.com/elprotectorado)';
@@ -491,7 +491,7 @@ const HTML = `<!doctype html>
 <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link rel="preconnect" href="https://a.basemaps.cartocdn.com" crossorigin>
+<link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="/app.css">
 <title>Sismo Panamá · ISTMO</title>
@@ -1229,10 +1229,10 @@ function applyDisplay() {
 /* ======================================================================
    Parte 3 · mapa (Leaflet), sismograma, tarjeta principal y detalle
    ====================================================================== */
-let map = null, baseLayer = null, gQ, gLinks, gWaves, gHeat, gUser, gSel, selQ = null;
+let map = null, baseLayer = null, overLayer = null, gQ, gLinks, gWaves, gHeat, gUser, gSel, selQ = null;
 const waveSet = new Map();
 const TILES = {
-  dark: { name: 'Oscuro', u: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', o: { subdomains: 'abcd', maxZoom: 19, attribution: '© OpenStreetMap · © CARTO' } },
+  dark: { name: 'Oscuro', u: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', over: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', o: { maxZoom: 16, attribution: 'Tiles © Esri — Esri, HERE, Garmin, OpenStreetMap contributors' } },
   sat: { name: 'Satélite', u: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', o: { maxZoom: 18, attribution: 'Imágenes © Esri' } },
   street: { name: 'Calles', u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', o: { maxZoom: 19, attribution: '© OpenStreetMap' } },
   topo: { name: 'Relieve', u: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', o: { subdomains: 'abc', maxZoom: 17, attribution: '© OpenTopoMap' } }
@@ -1261,7 +1261,9 @@ function initMap() {
 function setBase(k) {
   if (!map) return; const t = TILES[k] || TILES.dark;
   if (baseLayer) map.removeLayer(baseLayer);
+  if (overLayer) { map.removeLayer(overLayer); overLayer = null; }
   baseLayer = L.tileLayer(t.u, Object.assign({ crossOrigin: true }, t.o)).addTo(map); baseLayer.bringToBack();
+  if (t.over) { overLayer = L.tileLayer(t.over, Object.assign({ crossOrigin: true }, t.o, { attribution: '' })).addTo(map); }
 }
 function fitPanama(instant) { if (map) map.fitBounds([[5.2, -83.8], [10.2, -76.8]], { padding: [24, 24], animate: !instant }); else drawFallback(); }
 function locateMe() {
@@ -1862,7 +1864,7 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 `;
 const SWJS = `/* ISTMO · Service Worker — caché offline, Web Push, notificaciones con acciones, sincronización periódica */
 importScripts('/shared.js');
-const V = '2.0.mv3bz80s';
+const V = '2.0.mv3sepp1';
 const SHELL = 'istmo-shell-' + V, TILES = 'istmo-tiles', DATA = 'istmo-data', META = 'sismo-meta';
 const PRE = ['/', '/app.css', '/app.js', '/shared.js', '/icon.svg', '/icon-192.png', '/manifest.webmanifest'];
 const CDN = ['https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'];
@@ -1891,7 +1893,7 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(fetch(r).then((res) => { if (res.ok) { const cp = res.clone(); caches.open(DATA).then((c) => c.put(r, cp)); } return res; }).catch(() => caches.match(r).then((h) => h || new Response('{"error":"offline","quakes":[]}', { status: 503, headers: { 'content-type': 'application/json' } }))));
     return;
   }
-  if (/basemaps\\.cartocdn\\.com|tile\\.openstreetmap\\.org|tile\\.opentopomap\\.org|arcgisonline\\.com/.test(u.hostname)) { // teselas: caché primero
+  if (/tile\\.openstreetmap\\.org|tile\\.opentopomap\\.org|arcgisonline\\.com/.test(u.hostname)) { // teselas: caché primero
     e.respondWith(caches.open(TILES).then(async (c) => { const h = await c.match(r); if (h) return h; try { const res = await fetch(r); if (res.ok || res.type === 'opaque') { c.put(r, res.clone()); trim(TILES, 400); } return res; } catch (err) { return h || Response.error(); } }));
     return;
   }
