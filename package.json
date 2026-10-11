@@ -1,0 +1,8 @@
+{
+  "name": "sismo-panama",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ISTMO · Sismo Panamá — detector sísmico en un solo Cloudflare Worker (IGC-UP + USGS + EMSC). By @elprotectorado",
+  "scripts": { "build": "node build.mjs", "check": "node build.mjs && node --check worker.js" }
+}

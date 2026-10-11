@@ -1,0 +1,11 @@
+name = "sismopty"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Opcional (para Push con la app cerrada):
+# [[kv_namespaces]]
+# binding = "SISMO_KV"
+# id = "<ID_DE_TU_KV>"
+#
+# [triggers]
+# crons = ["* * * * *"]

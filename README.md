@@ -11,6 +11,3 @@ By @elprotectorado
 ## Uso
     node build.mjs      # regenera worker.js
 Pega `worker.js` en el editor de Cloudflare. Push opcional: KV `SISMO_KV` + Cron `* * * * *`.
-
-## Licencia y datos
-Código bajo licencia MIT (ver `LICENSE`). Los datos sísmicos pertenecen a sus fuentes (IGC-UP, USGS, EMSC) y se rigen por sus propios términos de uso.

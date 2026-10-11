@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API · Sismo Panamá ISTMO</title>
+<link rel="icon" href="/icon.svg">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#040a12;color:#dbe8f2;font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:0 0 60px}
+header{padding:34px 20px 22px;border-bottom:1px solid #12293a;background:radial-gradient(900px 300px at 20% -20%,#0f3a4d 0,transparent 70%)}
+h1{margin:0;font-size:clamp(26px,6vw,40px);letter-spacing:.04em}
+h1 b{color:#27f0c4}
+h2{margin:34px 0 10px;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#27f0c4}
+main{max-width:920px;margin:0 auto;padding:0 18px}
+p,li{color:#9db3c4}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:#0b1b29;border:1px solid #12293a;padding:1px 6px;border-radius:6px;color:#ffd166;font-size:.92em}
+pre{background:#071420;border:1px solid #12293a;border-radius:12px;padding:14px;overflow:auto;color:#cfe8f7}
+.ep{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;background:#071420;border:1px solid #12293a;border-radius:14px;padding:14px;margin:10px 0}
+.ep .m{color:#27f0c4;font-weight:700}
+a{color:#4fc3f7}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #12293a;padding:8px 6px;text-align:left;vertical-align:top}
+th{color:#7d93a5;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border:1px solid #1d4a5e;border-radius:999px;color:#7fe3ff}
+</style></head><body>
+<header><main><h1>SISMO PANAMÁ · <b>API</b></h1>
+<p>Datos sísmicos abiertos para Panamá: el listado del <b>Instituto de Geociencias (IGC-UP)</b> convertido a JSON/GeoJSON, fusionado con <b>USGS</b> y <b>EMSC</b>, con detección de réplicas. Sin clave, con CORS abierto. <br><a href="/">← Volver a la app</a> · By <b>@elprotectorado</b></p></main></header>
+<main>
+<h2>Endpoints</h2>
+<div class="ep"><span class="m">GET</span><span><code>/api/quakes</code> — todos los sismos fusionados (IGC + USGS + EMSC), con <code>role</code> (main / after / fore / single), <code>nrep</code> y magnitudes por fuente.</span>
+<span class="m">GET</span><span><code>/api/quakes.geojson</code> — igual, en GeoJSON.</span>
+<span class="m">GET</span><span><code>/api/igc</code> · <code>/api/igc.geojson</code> — <span class="tag">conversión del listado oficial</span> de <code>sismosgeociencias.up.ac.pa</code> (últimos 7 días, con estado PRELIMINAR / REVISADO).</span>
+<span class="m">GET</span><span><code>/api/latest</code> — último sismo en Panamá y el más fuerte de 24 h.</span>
+<span class="m">GET</span><span><code>/api/sequences</code> — secuencias sísmicas: réplicas y probabilidad estimada de réplicas (Reasenberg &amp; Jones, parámetros genéricos).</span>
+<span class="m">GET</span><span><code>/api/stats</code> — conteos por día, por magnitud, valor b de Gutenberg-Richter, energía liberada.</span>
+<span class="m">GET</span><span><code>/api/status</code> — salud de cada fuente (latencia, errores, datos obsoletos) y estado del push.</span></div>
+<h2>Parámetros de filtro (quakes / igc)</h2>
+<table>
+<tr><th>Parámetro</th><th>Descripción</th></tr>
+<tr><td><code>min</code>, <code>max</code></td><td>Magnitud mínima / máxima</td></tr>
+<tr><td><code>days</code></td><td>Solo los últimos N días (máx. 8)</td></tr>
+<tr><td><code>since</code></td><td>Marca de tiempo (ms) o fecha ISO</td></tr>
+<tr><td><code>region=pan</code></td><td>Solo dentro del recuadro de Panamá (4.5–10.5°N, 84–76.5°O)</td></tr>
+<tr><td><code>src=IGC|USGS|EMSC</code></td><td>Eventos confirmados por esa fuente</td></tr>
+<tr><td><code>st=R</code></td><td>Solo revisados (IGC) / revisados (USGS)</td></tr>
+<tr><td><code>role=after|main|fore|single</code></td><td>Filtra por rol en la secuencia</td></tr>
+<tr><td><code>limit</code>, <code>fresh=1</code></td><td>Límite de filas · ignora la caché de 15 s</td></tr>
+</table>
+<h2>Ejemplos</h2>
+<pre>curl "/api/igc?min=3&amp;days=2"
+curl "/api/quakes.geojson?region=pan&amp;min=4"
+curl "/api/sequences"
+fetch('/api/latest').then(r =&gt; r.json()).then(console.log)</pre>
+<h2>Notas de calidad</h2>
+<ul>
+<li>El listado del IGC se lee y se normaliza en cada consulta (caché 15 s). Las horas locales (UTC−5) se convierten a UTC. Si el sitio del IGC no responde, la API usa el último dato bueno (hasta 30 min) y lo marca <code>stale</code> en <code>/api/status</code>.</li>
+<li>Cuando varias redes reportan el mismo sismo (±100 s y &lt;120 km) se fusionan; la magnitud principal es la del IGC si existe, luego USGS, luego EMSC. El resto queda en <code>mags</code>.</li>
+<li>Información de apoyo, <b>no oficial</b>. Para decisiones de seguridad consulta al IGC-UP y SINAPROC. Emergencias: 911.</li>
+</ul>
+<h2>Activar alertas con la app cerrada (Web Push)</h2>
+<ol>
+<li>Workers → tu Worker → <b>Settings → Bindings → Add → KV namespace</b>. Variable: <code>SISMO_KV</code> (crea un namespace nuevo).</li>
+<li><b>Settings → Triggers → Cron Triggers → Add</b>: <code>* * * * *</code> (cada minuto).</li>
+<li>Opcional: variable <code>VAPID_SUBJECT</code> (por ejemplo <code>mailto:tu@correo.com</code>) y <code>PUSH_BUDGET</code> (envíos por minuto; 40 en plan gratuito).</li>
+<li>Abre la app → Ajustes → <b>Alertas push</b> → Activar. Las claves VAPID se generan solas la primera vez.</li>
+</ol>
+<p style="margin-top:30px;font-size:13px">Fuentes: IGC-UP · USGS Earthquake Hazards Program · EMSC-CSEM. Código por <b>@elprotectorado</b>.</p>
+</main></body></html>
