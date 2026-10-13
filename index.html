@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#040a12">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Sismo Panamá · ISTMO — vigilancia sísmica en tiempo real con IGC-UP, USGS, EMSC y GEOFON. By @elprotectorado">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sismo PA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="/app.css">
+<title>Sismo Panamá · ISTMO</title>
+</head>
+<body>
+<div id="gate">
+  <img class="logo" src="/icon-192.png" alt="">
+  <h1>SISMO <b>PANAMÁ</b></h1>
+  <p>Vigilancia sísmica en tiempo real con prioridad en Panamá: Instituto de Geociencias (IGC-UP), USGS y EMSC. Un toque activa pantalla completa, pantalla siempre encendida, alarmas con sonido, notificaciones y el detector de movimiento del equipo.</p>
+  <button id="go">ACTIVAR VIGILANCIA</button>
+  <div class="perms"><span>Pantalla completa</span><span>Sonido y voz</span><span>Notificaciones</span><span>Acelerómetro</span><span>Ubicación</span></div>
+  <button class="btn sm" id="skip">Entrar sin permisos</button>
+  <div class="by">ISTMO · BY @ELPROTECTORADO</div>
+</div>
+
+<div class="app" id="app">
+  <nav id="nav" aria-label="Secciones"></nav>
+  <div id="col">
+    <header id="top">
+      <div><div class="title">ISTMO · <b>SISMO PANAMÁ</b></div><span class="sub">IGC-UP · USGS · EMSC · GEOFON</span></div>
+      <div id="leds"></div>
+      <div id="clock"><b id="clk">--:--:--</b><span>HORA PANAMÁ</span></div>
+      <button class="ibtn" id="bFs" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button class="ibtn" id="bMute" aria-label="Sonido"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg></button>
+    </header>
+    <div id="ribbon"><canvas id="rib"></canvas><span class="l" style="left:10px">últimas 24 h · sismograma del catálogo</span><span class="l" style="right:10px">ahora</span></div>
+    <div id="tsu" role="alert"></div>
+    <main id="views">
+      <section class="view" id="v-radar">
+        <div id="map"></div>
+        <canvas id="mapfb" class="hide"></canvas>
+        <div class="mapbar" id="mTop"></div>
+        <div class="mapbar" id="mSide"></div>
+        <div class="card" id="hero"></div>
+        <div class="card" id="sheet"></div>
+        <div class="card mapbar" id="mLegend"></div>
+      </section>
+      <section class="view" id="v-eventos"></section>
+      <section class="view" id="v-replicas"></section>
+      <section class="view" id="v-datos"></section>
+      <section class="view" id="v-guia"></section>
+      <section class="view" id="v-ajustes"></section>
+    </main>
+  </div>
+</div>
+
+<div id="alarm" role="alertdialog" aria-live="assertive" aria-label="Alerta sísmica"></div>
+<div id="inst" role="dialog" aria-modal="true" aria-label="Instalar la app"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="offline">Sin conexión · mostrando los últimos datos guardados</div>
+<div id="dim"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script src="/shared.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
